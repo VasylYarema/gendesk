@@ -8,14 +8,20 @@ export interface UndoRedoState<T> {
 
 export const useUndoRedo = <T, >(initialValue: T, key: string) => {
   const [state, setState] = useState<UndoRedoState<T>>(() => {
-    const savedValue = localStorage.getItem(key);
-    return savedValue
-      ? { value: JSON.parse(savedValue), history: [], future: [] }
-      : { value: initialValue, history: [], future: [] };
+    if (typeof window !== 'undefined') {
+      const savedValue = localStorage.getItem(key);
+      return savedValue
+        ? { value: JSON.parse(savedValue), history: [], future: [] }
+        : { value: initialValue, history: [], future: [] };
+    } else {
+      return { value: initialValue, history: [], future: [] };
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state.value));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(state.value));
+    }
   }, [key, state.value]);
 
   const setValue = (newValue: T) => {
